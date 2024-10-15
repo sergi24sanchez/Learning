@@ -3,18 +3,19 @@ import torch
 import torch.nn as nn
 from torch.nn import functional as F
 import pathlib
+import math
 
 # hyperparameters
-batch_size = 64 # how many independent sequences will we process in parallel?
-block_size = 64 # what is the maximum context length for predictions?
+batch_size = 32 # how many independent sequences will we process in parallel?
+block_size = 16 # what is the maximum context length for predictions?
 max_iters = 5000
 eval_interval = 300
 learning_rate = 3e-4
 device = 'cuda' if torch.cuda.is_available() else 'cpu'
 eval_iters = 200
-n_embd = 48
+n_embd = 24
 n_head = 6   # 384/6 = 64 head_size    
-n_layer = 6
+n_layer = 4
 dropout = 0.2
 # -----------------
 
@@ -95,13 +96,44 @@ class MultiHeadAttention(nn.Module):
 
     def __init__(self, num_heads, head_size):
         super().__init__()
-        self.heads = nn.ModuleList([Head(head_size) for _ in range(num_heads)])
-        self.proj = nn.Linear(n_embd, n_embd)
-        self.dropout = nn.Dropout(dropout)
+        assert n_embd % n_head == 0
+        # key, query, value projections for all heads, but in a batch
+        self.c_attn = nn.Linear(n_embd, 3 * n_embd, bias=False)
+        # output projection
+        self.c_proj = nn.Linear(n_embd, n_embd)
+        # regularization
+        self.attn_dropout = nn.Dropout(dropout)
+        self.resid_dropout = nn.Dropout(dropout)
+        self.dropout = dropout
+        # flash attention make GPU go brrr but support is only in Pytorch >=2.0
+        self.flash = hasattr(torch.nn.functional, 'scaled_dot_product_attention')
+        if not self.flash:
+            print("WARNING: using slow attention. Flash Attention requires PyTorch >= 2.0")
+            # causal mask to ensure that attention is only applied to the left in the input sequence
+            self.register_buffer("bias", torch.tril(torch.ones(block_size, block_size))
+                             .view(1, 1, block_size, block_size))
 
     def forward(self, x):
-        out = torch.cat([h(x) for h in self.heads], dim=-1)
-        out = self.dropout(self.proj(out))
+        B, T, C = x.size() # batch size, sequence length, embedding dimensionality (n_embd)
+
+        # calculate query, key, values for all heads in batch and move head forward to be the batch dim
+        q, k, v = self.c_attn(x).split(n_embd, dim=2)
+        k = k.view(B, T, n_head, C // n_head).transpose(1, 2) # (B, nh, T, hs)
+        q = q.view(B, T, n_head, C // n_head).transpose(1, 2) # (B, nh, T, hs)
+        v = v.view(B, T, n_head, C // n_head).transpose(1, 2) # (B, nh, T, hs)
+
+        if self.flash:
+            y = F.scaled_dot_product_attention(q, k, v, attn_mask=None, dropout_p=self.dropout if self.training else 0, is_causal=True)
+        else:
+            att = (q @ k.transpose(-2, -1)) * (1.0 / math.sqrt(k.size(-1)))
+            att = att.masked_fill(self.bias[:,:, :T, :T] == 0, float('-inf')) # (B, nh, T, T)
+            att = F.softmax(att, dim=-1)
+            att = self.attn_dropout(att)
+            y = att @ v # (B, nh, T, T) x (B, nh, T, hs) ----> (B, nh, T, hs)
+        y = y.transpose(1,2).contiguous().view(B, T, C) # re-assemble all head outputs side by side
+
+        # output projection
+        out = self.resid_dropout(self.c_proj(y))
         return out
 
 
@@ -189,7 +221,7 @@ model = BigramLanguageModel()
 m = model.to(device)
 
 parameters = m.parameters()
-print(sum(p.nelement() for p in parameters))
+print(f"Number of parameters: {sum(p.nelement() for p in parameters)}")
 
 # create a Pytorch optimizer
 optimizer = torch.optim.AdamW(model.parameters(), lr=learning_rate)
