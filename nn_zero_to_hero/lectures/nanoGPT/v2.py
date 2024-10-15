@@ -2,22 +2,27 @@ from numpy import tril
 import torch
 import torch.nn as nn
 from torch.nn import functional as F
+import pathlib
 
 # hyperparameters
-batch_size = 32
-block_size = 8
+batch_size = 64 # how many independent sequences will we process in parallel?
+block_size = 64 # what is the maximum context length for predictions?
 max_iters = 5000
 eval_interval = 300
-learning_rate = 1e-3
+learning_rate = 3e-4
 device = 'cuda' if torch.cuda.is_available() else 'cpu'
 eval_iters = 200
-n_embd = 64
+n_embd = 48
+n_head = 6   # 384/6 = 64 head_size    
+n_layer = 6
+dropout = 0.2
 # -----------------
 
 torch.manual_seed(1337)
 
 # wget https://raw.githubusercontent.com/karpathy/char-rnn/master/data/tinyshakespeare/input.txt
-with open('/Users/sergi24sanchez/deep_learning/Learning/nn_zero_to_hero/lectures/nanoGPT/input.txt', 'r', encoding='utf-8') as f:
+root_path = pathlib.Path(__file__)
+with open(str(root_path.parent / pathlib.Path('input.txt')), 'r', encoding='utf-8') as f:
     text = f.read()
 
 # here are all the unique characters that occur in this text
@@ -67,6 +72,7 @@ class Head(nn.Module):
         self.query = nn.Linear(n_embd, head_size, bias=False)
         self.value = nn.Linear(n_embd, head_size, bias=False)
         self.register_buffer('tril', torch.tril(torch.ones(block_size, block_size)))
+        self.dropout = nn.Dropout(dropout)
 
     def forward(self, x):
         B,T,C = x.shape
@@ -76,6 +82,8 @@ class Head(nn.Module):
         wei = q @ k.transpose(-2, -1) * C**-0.5
         wei = wei.masked_fill(self.tril[:T, :T] == 0, float('-inf')) # (B, T, T)
         wei = F.softmax(wei, dim=-1) # (B, T, T)
+        wei = self.dropout(wei)
+        # perform the weighted aggregation
         v = self.value(x)
         out = wei @ v
 
@@ -88,9 +96,13 @@ class MultiHeadAttention(nn.Module):
     def __init__(self, num_heads, head_size):
         super().__init__()
         self.heads = nn.ModuleList([Head(head_size) for _ in range(num_heads)])
+        self.proj = nn.Linear(n_embd, n_embd)
+        self.dropout = nn.Dropout(dropout)
 
     def forward(self, x):
-        return torch.cat([h(x) for h in self.heads], dim=-1)
+        out = torch.cat([h(x) for h in self.heads], dim=-1)
+        out = self.dropout(self.proj(out))
+        return out
 
 
 class FeedForward(nn.Module):
@@ -98,8 +110,10 @@ class FeedForward(nn.Module):
     def __init__(self, n_embd):
         super().__init__()
         self.net = nn.Sequential(
-            nn.Linear(n_embd, n_embd),
-            nn.ReLU()
+            nn.Linear(n_embd, 4 * n_embd),
+            nn.ReLU(),
+            nn.Linear(4 * n_embd, n_embd),  # projection layer going back into the residual pathway
+            nn.Dropout(dropout)
         )
     
     def forward(self, x):
@@ -114,10 +128,12 @@ class Block(nn.Module):
         head_size = n_embd // n_head
         self.sa = MultiHeadAttention(n_head, head_size)
         self.ffw = FeedForward(n_embd)
+        self.ln1 = nn.LayerNorm(n_embd)
+        self.ln2 = nn.LayerNorm(n_embd)
     
     def forward(self, x):
-        x = self.sa(x)
-        x = self.ffw(x)
+        x = x + self.sa(self.ln1(x))
+        x = x + self.ffw(self.ln2(x))
         return x
 
 # super simple bigram model
@@ -128,11 +144,8 @@ class BigramLanguageModel(nn.Module):
         # each token directly reads off the logits for the next token from a lookup table
         self.token_embedding_table = nn.Embedding(vocab_size, n_embd)
         self.position_embedding_table = nn.Embedding(block_size, n_embd)
-        self.blocks = nn.Sequential(
-            Block(n_embd, n_head=4),
-            Block(n_embd, n_head=4),
-            Block(n_embd, n_head=4),
-        )
+        self.blocks = nn.Sequential(*[Block(n_embd, n_head=n_head) for _ in range(n_layer)])
+        self.ln_f = nn.LayerNorm(n_embd) # final layer norm
         self.lm_head = nn.Linear(n_embd, vocab_size)
 
     def forward(self, idx, targets=None):
@@ -174,6 +187,9 @@ class BigramLanguageModel(nn.Module):
 
 model = BigramLanguageModel()
 m = model.to(device)
+
+parameters = m.parameters()
+print(sum(p.nelement() for p in parameters))
 
 # create a Pytorch optimizer
 optimizer = torch.optim.AdamW(model.parameters(), lr=learning_rate)
