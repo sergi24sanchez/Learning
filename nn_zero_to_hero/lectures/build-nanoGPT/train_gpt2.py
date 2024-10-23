@@ -299,6 +299,8 @@ else:
         device = "mps"
     print(f"using device: {device}")
 
+device_type = "cuda" if device.startswith("cuda") else "cpu"
+
 # ---------------------------------------------------------------------------
 # device = "cpu" # OVERRIDE
 
@@ -327,6 +329,7 @@ model = torch.compile(model)
 print("Model compiled!!!")
 if ddp:
     model = DDP(model, device_ids=[ddp_local_rank])
+raw_model = model.module if ddp else model # always contains the "raw" unwrapped model
 # what DDP does for you is once the backward pass is over it will call 'allreduce', basically does an average across
 # all the ranks of their gradients and then it will deposit that average on every single rank. Every single rank will
 # end up with the average on it. That's the communication: synchronizes and averages the gradients
@@ -352,7 +355,7 @@ def get_lr(it):
     return min_lr + coeff * (max_lr - min_lr)
 
 # OPTIMIZE !
-optimizer = model.configure_optimizers(weight_decay=0.1, learning_rate=6e-4, device=device)
+optimizer = raw_model.configure_optimizers(weight_decay=0.1, learning_rate=6e-4, device=device)
 
 for step in range(max_steps):
     t0 = time.time()
