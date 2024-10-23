@@ -1,4 +1,6 @@
 huggingface-hub==0.26.0
 jupyterlab==3.5.2
+matplotlib==3.7.5
+tiktoken==0.7.0
 torch==2.2.2
 transformers==4.45.2
