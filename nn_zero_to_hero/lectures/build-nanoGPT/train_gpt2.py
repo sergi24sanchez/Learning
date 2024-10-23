@@ -267,7 +267,7 @@ for i in range(50):
     x, y = train_loader.next_batch()
     x, y = x.to(device), y.to(device)
     optimizer.zero_grad()
-    # AUTOMATIC MIXED PRECISION
+    # AUTOMATIC MIXED PRECISION ---> https://pytorch.org/tutorials/recipes/recipes/amp_recipe.html
     # The parameters will still be float32 but the logits are bfloat16
     with torch.autocast(device_type=device, dtype=torch.bfloat16): # we don't use float16 because gradient scalers are needed then
         logits, loss = model(x, y)
