@@ -14,6 +14,7 @@ The Yale Facedatabase A (also known as Yalefaces) is a more appropriate dataset 
 Write a simple CSV file where its lines are composed by a filename refering to an image and its label (integer).
 
 Download the AT&T Facedatabase from AT&T Facedatabase and the corresponding CSV file from at.txt, which looks like this:
+
 '''
 ./at/s1/1.pgm;0
 ./at/s1/2.pgm;0
@@ -26,6 +27,7 @@ Download the AT&T Facedatabase from AT&T Facedatabase and the corresponding CSV 
 '''
 
 Once you have a CSV file with valid filenames and labels, you can run any of the demos by passing the path to the CSV file as parameter:
+
 '''
 facerec_demo.exe D:/data/at.txt
 '''
