@@ -169,3 +169,4 @@ cython_debug/
 *pegasus*
 *elastic*
 *mlruns*
+*onnx*
