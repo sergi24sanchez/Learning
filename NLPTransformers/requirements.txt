@@ -5,12 +5,14 @@ hf-xet>=1.1.2
 huggingface-hub>=0.31.4
 jupyter
 matplotlib
+nlpaug==1.1.11
 nltk>=3.9.1
 notebook>=6.5.7
 opencv-python>=4.11.0.86
 pandas>=2.0.3
 rouge-score>=0.1.2
 sacrebleu>=2.5.1
+scikit-multilearn>=0.2.0
 seqeval>=1.2.2
 sklearn-pandas>=2.2.0
 torch==2.0.1+cu117

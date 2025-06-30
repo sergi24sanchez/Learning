@@ -163,6 +163,7 @@ cython_debug/
 
 *.npy
 *.json
+*.jsonl
 *wandb
 *distilbert*
 *xlm-*
