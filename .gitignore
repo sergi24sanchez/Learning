@@ -165,9 +165,11 @@ cython_debug/
 *.json
 *.jsonl
 *wandb
+*bert*
 *distilbert*
 *xlm-*
 *pegasus*
 *elastic*
 *mlruns*
 *onnx*
+*results*
