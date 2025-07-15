@@ -48,6 +48,7 @@ class TrainingArguments:
         metadata={"help": "Interval to save checkpoints. Measured as number of forward passes not training steps."},
     )
     resume_from_checkpoint: Optional[str] = field(
-        default=None, metadata={"help": "States path if the training should continue from a checkpoint folder."}
+        default="/home/ssanchez/repositories/Learning/NLPTransformers/codeparrot/scripts/models/step_3072",
+        metadata={"help": "States path if the training should continue from a checkpoint folder."}
     )
     tokenized: Optional[bool] = field(default=False, metadata={"help": "If True the data is pretokenized."})

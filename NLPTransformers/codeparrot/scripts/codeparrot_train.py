@@ -183,6 +183,23 @@ def compute_tflops(elapsed_time, accelerator, args):
     tflops = flops_per_iteration / (elapsed_time * accelerator.state.num_processes * (10**12))
     return tflops
 
+def retry_pushing(repo, step, logger, commit_message, max_retries=3, retry_delay=10):
+    max_retries = 3
+    retry_delay = 10  # seconds
+    for attempt in range(1, max_retries + 1):
+        try:
+            repo.push_to_hub(commit_message=commit_message)
+            logger.info(f"Pushed to hub successfully on attempt {attempt}")
+            break  # Exit the loop if successful
+        except Exception as e:
+            logger.warning(f"Attempt {attempt} failed to push to Hugging Face Hub at step {step}: {e}")
+            if attempt < max_retries:
+                logger.info(f"Retrying in {retry_delay} seconds...")
+                time.sleep(retry_delay)
+            else:
+                logger.error("Max retries reached. Skipping push for this checkpoint.")
+
+
 
 # Settings
 parser = HfArgumentParser(TrainingArguments)
@@ -306,7 +323,11 @@ for step, batch in enumerate(train_dataloader, start=1):
         save_dir = os.path.join(args.save_dir, f"step_{step}")
         accelerator.save_state(save_dir)
         if accelerator.is_main_process:
-            hf_repo.push_to_hub(commit_message=f"step {step}")
+            commit_message = f"step {step}"
+            try:
+                hf_repo.push_to_hub(commit_message=commit_message)
+            except Exception as e:
+                retry_pushing(hf_repo, step, logger, commit_message, max_retries=3, retry_delay=10)
         model.train()
     if completed_steps >= args.max_train_steps:
         break
@@ -321,4 +342,8 @@ unwrapped_model.save_pretrained(args.save_dir, save_function=accelerator.save)
 save_dir = os.path.join(args.save_dir, f"step_{step}")
 accelerator.save_state(save_dir)
 if accelerator.is_main_process:
-    hf_repo.push_to_hub(commit_message="final model")
+    commit_message = "final model"
+    try:
+        hf_repo.push_to_hub(commit_message=commit_message)
+    except Exception as e:
+            retry_pushing(hf_repo, step, logger, commit_message, max_retries=3, retry_delay=10)
