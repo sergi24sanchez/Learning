@@ -168,7 +168,7 @@ cython_debug/
 *bert*
 *distilbert*
 *xlm-*
-*pegasus*
+*pegasus-samsum*
 *elastic*
 *mlruns*
 *onnx*
