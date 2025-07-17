@@ -15,7 +15,7 @@ This repository documents my complete [deep] learning journey.
 
 # 🛠️ Projects
 
-## 🤖 Natural Language Processing with Transformers
+## 🤖 [Natural Language Processing with Transformers](https://github.com/sergi24sanchez/Learning/tree/main/NLPTransformers)
 
 [![Python](https://img.shields.io/badge/Python-3.10-blue?logo=python)](https://www.python.org/)
 [![HuggingFace](https://img.shields.io/badge/%F0%9F%A4%97-HuggingFace-yellow?logo=huggingface)](https://huggingface.co/)
