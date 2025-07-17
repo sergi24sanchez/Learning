@@ -42,14 +42,17 @@ Over several weeks, I explored modern NLP through full-stack implementations —
 ### 📊 Sample Outputs
 
 
-> 🧾 **Zero-Shot & Few-Shot Learning Comparison** (Pre-trained vs Data Augmentation vs Fine-tuning)  
-> <img src="img/few-shot_learning.png" width="500"/>
+> 🧾 **Zero-Shot & Few-Shot Learning Comparison** (Pre-trained vs Data Augmentation vs Fine-tuning)
+>
+> <img src="NLPTransformers/img/few-shot_learning.png" width="500"/>
 
-> 📈 **Model Efficiency Optimization**  
-> <img src="img/transformers_efficiency.png" width="500"/>
+> 📈 **Model Efficiency Optimization**
+>
+> <img src="NLPTransformers/img/transformers_efficiency.png" width="500"/>
 
 > 🔁 **117M parameter GPT-2 Python Code Autocompletion Model Training**
-> <img src="img/train_loss.png" width="500"/>
+>
+> <img src="NLPTransformers/img/train_loss.png" width="500"/>
 
 ---
 
