@@ -4,6 +4,15 @@ This repository documents my complete [deep] learning journey.
 
 ---
 
+# 🧑‍💻 About Me
+
+**Sergi Sánchez Bonilla**  
+Machine Learning Practitioner | NLP Explorer | Lifelong Learner
+
+📫 [LinkedIn](https://www.linkedin.com/in/sergi-sanchez-bonilla)
+
+---
+
 ## 🚀 My Goals & Motivation
 
 ✅ Build real-world skills with state-of-the-art NLP  
@@ -22,6 +31,21 @@ This repository documents my complete [deep] learning journey.
 
 > 📘 A hands-on implementation of state-of-the-art NLP using **Transformers**, based on the book by Tunstall, von Werra & Wolf.  
 > 🛠 Built with 🤗 Transformers, PyTorch, ONNX Runtime, and more.
+
+---
+
+### 📂 Project Structure
+
+```bash
+📦NLPTransformers
+    ┣ 📁notebooks/
+        ┣ 01_transformers_model.ipynb
+    ┣ 📁codeparrot/scripts/
+        ┣ arguments.py
+        ┣ codeparrot_train.py
+    ┣ img/              
+    ┗ 📄README.md
+```
 
 ---
 
@@ -83,13 +107,6 @@ Over several weeks, I explored modern NLP through full-stack implementations —
 
 ## 🐍 Python Course
 
-## 🐳 [Andrew Karpathy](https://karpathy.ai/)'s NN Zero-to-Hero
-
 ---
 
-# 🧑‍💻 About Me
-
-**Sergi Sánchez Bonilla**  
-Machine Learning Practitioner | NLP Explorer | Lifelong Learner
-
-📫 [LinkedIn](https://www.linkedin.com/in/sergi-sanchez-bonilla)  
+## 🐳 [Andrew Karpathy](https://karpathy.ai/)'s NN Zero-to-Hero

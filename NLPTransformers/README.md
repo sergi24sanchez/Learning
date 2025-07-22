@@ -117,14 +117,3 @@
   - Exploring multimodal models like **CLIP** and **DALL·E**
 
 ---
-
-## 📂 Project Structure
-
-```bash
-📦NLPTransformers
-    ┣ 📁notebooks/
-    ┣ 📁codeparrot/scripts/
-        ┣ arguments.py
-        ┣ codeparrot_train.py
-    ┣ img/              
-    ┗ 📄README.md
