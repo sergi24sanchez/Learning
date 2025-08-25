@@ -174,3 +174,9 @@ cython_debug/
 *onnx*
 *results*
 *models*
+
+*.zip
+*.jpg
+
+# face_recognition project
+att_faces
