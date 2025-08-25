@@ -162,3 +162,8 @@ cython_debug/
 #.idea/
 
 .DS_Store
+*.zip
+*.jpg
+
+# face_recognition project
+att_faces

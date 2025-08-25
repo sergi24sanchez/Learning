@@ -1,9 +1,9 @@
 import cv2
 import face_recognition
 
-imgmain = face_recognition.load_image_file('ImageBasics/Bryan_Cranst.jpg')
+imgmain = face_recognition.load_image_file('sample_images/angelina00.jpg')
 imgmain = cv2.cvtColor(imgmain, cv2.COLOR_BGR2RGB)
-imgTest = face_recognition.load_image_file('ImageBasics/bryan-cranston-el-camino-aaron-paul-1a.jpg')
+imgTest = face_recognition.load_image_file('sample_images/angelina01.jpg')
 imgTest = cv2.cvtColor(imgTest, cv2.COLOR_BGR2RGB)
 
 faceLoc = face_recognition.face_locations(imgmain)[0]
