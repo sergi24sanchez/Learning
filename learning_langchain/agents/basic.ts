@@ -25,7 +25,9 @@ export const run = async () => {
     });
     const executor = new AgentExecutor({
         agent,
-        tools
+        tools,
+        verbose: true,
+        maxIterations: 10
     });
     console.log("Loaded agent.");
 
