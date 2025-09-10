@@ -3,12 +3,14 @@ import { SerpAPI } from "@langchain/community/tools/serpapi";
 import { Calculator } from "@langchain/community/tools/calculator";
 import { AgentExecutor, createReactAgent } from "langchain/agents";
 import { ChatPromptTemplate } from "@langchain/core/prompts";
+import { config } from 'dotenv';
+config({ path: '../.env' });
 
 export const run = async () => {
     const model = new ChatOllama({temperature: 0, model: "llama3"});
     // A tool is a function that performs a specific duty
     // SerpAPI for example accesses google serch resulrs in real time
-    const tools = [new Calculator()];
+    const tools = [new Calculator(), new SerpAPI()];
     
     const prompt = ChatPromptTemplate.fromMessages([
         {
@@ -27,7 +29,7 @@ export const run = async () => {
     });
     console.log("Loaded agent.");
 
-    const input = "What is 15 raised to the power of 3?";
+    const input = "What are the total number of countries in Asia raised to the power of 3?";
     console.log(`Executing with input "${input}"...`);
 
     const result = await executor.invoke({ input });
