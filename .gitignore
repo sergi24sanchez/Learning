@@ -180,3 +180,11 @@ cython_debug/
 
 # face_recognition project
 att_faces
+
+# langchain project
+learning_langchain/dist
+learning_langchain/node_modules
+learning_langchain/package-lock.json
+learning_langchain/package.json
+learning_langchain/tsconfig.json
+learning_langchain/tsconfig.json.backup
