@@ -15,7 +15,34 @@ export const run = async () => {
     const prompt = ChatPromptTemplate.fromMessages([
         {
             role: "system",
-            content: "You are a helpful assistant that can use tools. You have access to the following tools:\n\n{tools}\n\nUse the following format:\n\nQuestion: the input question you must answer\nThought: you should always think about what to do\nAction: the action to take, should be one of [{tool_names}]\nAction Input: the input to the action\nObservation: the result of the action\n... (this Thought/Action/Action Input/Observation can repeat N times)\nThought: I now know the final answer\nFinal Answer: the final answer to the original input question\n\nBegin!\n\nQuestion: {input}\nThought:{agent_scratchpad}" },
+            content: 
+`You are a helpful assistant that can use tools. You have access to the following tools:
+
+{tools}
+tool_names: {tool_names}
+
+Use the following format:
+
+Question: the input question you must answer
+Thought: you should always think about what to do
+Action: the action to take, should be one of [{tool_names}]
+Action Input: the input to the action
+Observation: the result of the action
+... (this Thought/Action/Action Input/Observation can repeat N times)
+Thought: I now know the final answer
+Final Answer: the final answer to the original input question
+
+CRITICAL: When you get a successful result from a tool, you MUST provide a "Final Answer" and stop. Do not repeat the same action.
+
+IMPORTANT: For calculator, only send simple math expressions like "45*3", not descriptions.
+
+Begin!
+
+Question: {input}
+Thought: {agent_scratchpad}`,
+            tools: tools.map(tool => tool.name).join(", "),
+            tool_names: tools.map(tool => tool.name).join(", ")
+        }
     ]);
     
     const agent = await createReactAgent({
@@ -27,7 +54,8 @@ export const run = async () => {
         agent,
         tools,
         verbose: true,
-        maxIterations: 10
+        maxIterations: 3,
+        returnIntermediateSteps: true
     });
     console.log("Loaded agent.");
 
