@@ -180,3 +180,5 @@ cython_debug/
 
 # face_recognition project
 att_faces
+
+*node_modules*
