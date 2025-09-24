@@ -1,4 +1,6 @@
+crewai
 langchain-community
 langchain
 langchain-ollama
 langgraph
+notebook
